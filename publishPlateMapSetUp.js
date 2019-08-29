@@ -3,10 +3,9 @@ require('dotenv').config();
 var AWS = require("aws-sdk");
 var sns = new AWS.SNS();
 var axios = require("axios");
-// var url = 'https://kapture-staging.apps.kaleidobio.com/api/platemaps/atlas';
-var url = 'http://localhost:8080/api/platemaps/atlas';
 
 const token = process.env.KAPTURE_JWT_TOKEN;
+const url = process.env.KAPTURE_API + '/platemaps/atlas';
 
 exports.handler = (event, context, callback) => {
 
