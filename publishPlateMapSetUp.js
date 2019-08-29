@@ -14,22 +14,23 @@ exports.handler = (event, context, callback) => {
         var experiment = image.experiment && image.experiment.S?JSON.stringify(image.experiment.S):'';
         var status = image.experiment && image.experiment.S?JSON.stringify(image.status.S):'';
         var plateMaps = image.plateMaps && image.plateMaps.S?JSON.parse(image.plateMaps.S):null;
-        if (status === 'COMPLETE'){
+        if (status === 'COMPLETE') {
             saveToKapture(experiment, plateMaps);
-        }
-        var params = {
-            Subject: record.eventName + ":" + experiment,
-            Message: '{ experiment: ' + experiment + ',\n   status: ' + status  + ',\n   plateMaps: ' + plateMaps.length + '}\n\n ',
-            TopicArn: 'arn:aws:sns:us-east-1:001507046168:plateMapSetUpTopics'
-        };
 
-        sns.publish(params, function(err, data) {
-            if (err) {
-                console.error("Unable to send message. Error JSON:", JSON.stringify(err, null, 2));
-            } else {
-                console.log("Results from sending message: ", JSON.stringify(data, null, 2));
-            }
-        });
+            var params = {
+                Subject: record.eventName + ":" + experiment,
+                Message: '{ experiment: ' + experiment + ',\n   status: ' + status + ',\n   plateMaps: ' + plateMaps.length + '}\n\n ',
+                TopicArn: 'arn:aws:sns:us-east-1:001507046168:plateMapSetUpTopics'
+            };
+
+            sns.publish(params, function (err, data) {
+                if (err) {
+                    console.error("Unable to send message. Error JSON:", JSON.stringify(err, null, 2));
+                } else {
+                    console.log("Results from sending message: ", JSON.stringify(data, null, 2));
+                }
+            });
+        }
     });
     callback(null, `Successfully processed ${event.Records.length} records.`);
 };
