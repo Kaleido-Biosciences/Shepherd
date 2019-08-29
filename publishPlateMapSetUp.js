@@ -43,7 +43,7 @@ function saveToKapture(experiment, plateMaps) {
     axios.post(url,
         {
             experimentName: experiment,
-            wells: wellsToSave
+            wellWithComponents: wellsToSave
         }, {
             headers: {"Authorization": `Bearer ${token}`}
         }
@@ -68,7 +68,8 @@ function formatWells(experiment, plateMaps) {
                 var colLabel= cell.id.replace(re1,'');
                 var theSample = { id:null, label: experiment+".p"+plateMap.id+"."+cell.id };
                 var theWell = { id: null, platemap:thePlateMap, sample:theSample, row: rowLabel, column: colLabel };
-                wellsToSave.push( theWell );
+                var wellWithComponents = { well: theWell, wellComponents: cell.components} ;
+                wellsToSave.push( wellWithComponents );
             });
         });
     });
