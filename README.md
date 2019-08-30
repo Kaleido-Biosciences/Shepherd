@@ -25,9 +25,15 @@ Application that processes the platemaps as well as tracks sequencing plates and
   - npm install
   - npm start
 
-If you are using Webstorm, you can also start and debug using the following set up
+If you are using Webstorm, you can also run and debug the lambda function with the following configuration
+```
+Name:                   publishPlateMapSetUp.js
+Node interpreter:       Project node(~/.nvm/versions/node/v10.15.0/bin/node)
+Working directort:      ~/WebstormProjects/shepherd
+JavaScript file:        node_modules/bespoken-tools/bin/bst-proxy.js
+Application parameters: lambda publishPlateMapSetUp.js --verbose
 
-![alt text](https://gitlab.kaleidobio.com/research/shepherd/blob/issue/1/images/webstorm_config.png)
+```
 
 # Testing 
 The Lambda function can be tested locally by running ./test.sh in Terminal. 
