@@ -13,7 +13,7 @@ curl -H "Content-Type: application/json" \
         "ApproximateCreationDateTime": 1479499740,
         "NewImage": {
           "experiment": {
-            "S": "G888"
+            "S": "G111"
           },
           "status": {
             "S": "COMPLETE"
