@@ -16,7 +16,7 @@ curl -H "Content-Type: application/json" \
             "S": "G111"
           },
           "status": {
-            "S": "COMPLETE"
+            "S": "COMPLETED"
           },
           "data": {
             "S": "TESTING"
