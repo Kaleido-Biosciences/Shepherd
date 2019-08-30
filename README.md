@@ -5,7 +5,10 @@ Application that processes the platemaps as well as tracks sequencing plates and
 # Environment variables
 * During development, please add a .env file that contains the following properties:
 
-  KAPTURE_JWT_TOKEN=replace_with_a_valid_token
+KAPTURE_API=http://localhost:8080/api
+KAPTURE_AUTHENTICATE_URL=https://kapture.apps.kaleidobio.com/api/authenticate
+KAPTURE_USERNAME=dflemming
+KAPTURE_PASSWORD=Kaleido2019
 
 * During deployment, create the lambda function with the --environment attribute
   ```
@@ -16,8 +19,9 @@ Application that processes the platemaps as well as tracks sequencing plates and
       --role arn:aws:iam::001507046168:role/service-role/DynamoDBKickingLambdaRole \
       --handler publishPlateMapSetUp.handler \
       --timeout 5 \
-      --runtime nodejs10.x
-      --environment Variables="{KAPTURE_JWT_TOKEN=replace_with_a_valid_token}" 
+      --runtime nodejs10.x \
+      --environment Variables="{KAPTURE_PASSWORD=replace_with_a_valid_password, \
+      KAPTURE_USERNAME=username, KAPTURE_AUTHENTICATE_URL=url, KAPTURE_API=api }" 
   ```
 
 

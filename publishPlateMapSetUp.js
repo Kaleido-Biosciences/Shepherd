@@ -4,8 +4,10 @@ var AWS = require("aws-sdk");
 var sns = new AWS.SNS();
 var axios = require("axios");
 
-const token = process.env.KAPTURE_JWT_TOKEN;
 const url = process.env.KAPTURE_API + '/platemaps/atlas';
+const authenticate_url = process.env.KAPTURE_AUTHENTICATE_URL;
+const username = process.env.KAPTURE_USERNAME;
+const password = process.env.KAPTURE_PASSWORD;
 
 exports.handler = (event, context, callback) => {
 
@@ -17,15 +19,32 @@ exports.handler = (event, context, callback) => {
         var experiment = image.experiment && image.experiment.S ? image.experiment.S : null;
         var status = image.experiment && image.experiment.S ? image.status.S : null;
         var plateMaps = image.plateMaps && image.plateMaps.S ? JSON.parse(image.plateMaps.S) : null;
-        if (status === 'COMPLETE') {
-            saveToKapture(experiment, plateMaps, status, record.eventName);
+        if (status === 'COMPLETE' ) {
+            var p1 = new Promise(function(resolve, reject) {
+                axios.post(authenticate_url,
+                    {
+                        "password": password,
+                        "rememberMe": true,
+                        "username": username
+                    }
+                )
+                    .then(function (response) {
+                        resolve(response.data.id_token);
+                    })
+                    .catch(function (error) {
+                        console.log("Authentication Failed");
+                        reject(error)
+                    });
+            });
+            p1.then(function (token){
+                saveToKapture(experiment, plateMaps, status, token);
+            });
         }
     });
     callback(null, `processed ${event.Records.length} records.`);
 };
 
-
-function saveToKapture(experiment, plateMaps, status, eventName) {
+function saveToKapture(experiment, plateMaps, status, token) {
     var wellsToSave = formatWells(experiment, plateMaps);
     axios.post(url,
         {
