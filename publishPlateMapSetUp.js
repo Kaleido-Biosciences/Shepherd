@@ -18,15 +18,14 @@ exports.handler = (event, context, callback) => {
         var status = image.experiment && image.experiment.S ? image.status.S : null;
         var plateMaps = image.plateMaps && image.plateMaps.S ? JSON.parse(image.plateMaps.S) : null;
         if (status === 'COMPLETE') {
-            saveToKapture(experiment, plateMaps);
-            sendSNS(record.eventName, experiment, status, plateMaps.length);
+            saveToKapture(experiment, plateMaps, status, record.eventName);
         }
     });
-    callback(null, `Successfully processed ${event.Records.length} records.`);
+    callback(null, `processed ${event.Records.length} records.`);
 };
 
 
-function saveToKapture(experiment, plateMaps) {
+function saveToKapture(experiment, plateMaps, status, eventName) {
     var wellsToSave = formatWells(experiment, plateMaps);
     axios.post(url,
         {
@@ -38,9 +37,11 @@ function saveToKapture(experiment, plateMaps) {
     )
         .then(function (response) {
             console.log(response);
+            sendSNS(experiment, status, plateMaps.length, "Shepherd SUCCEED in publishing to Kapture");
         })
         .catch(function (error) {
             console.log(error);
+            sendSNS(experiment, status, plateMaps.length, "Shepherd FAILED to publish to Kapture");
         });
 }
 
@@ -64,9 +65,9 @@ function formatWells(experiment, plateMaps) {
     return wellsToSave;
 }
 
-function sendSNS(recordEventName, experiment, status, plateMapCount) {
+function sendSNS(experiment, status, plateMapCount, message) {
     var params = {
-        Subject: recordEventName + ":" + experiment,
+        Subject: message + ":" + experiment,
         Message: '{ experiment: ' + experiment + ',\n   status: ' + status + ',\n   plateMaps: ' + plateMapCount + '}\n\n ',
         TopicArn: 'arn:aws:sns:us-east-1:001507046168:plateMapSetUpTopics'
     };

@@ -35,7 +35,7 @@ Application parameters: lambda publishPlateMapSetUp.js --verbose
 
 ```
 
-# Testing 
-The Lambda function can be tested locally by running ./test.sh in Terminal. 
+# Testing during development
+The Lambda function can be tested locally by running ./test_dev.sh in Terminal. 
 
 
