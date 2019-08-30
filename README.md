@@ -7,8 +7,8 @@ Application that processes the platemaps as well as tracks sequencing plates and
 
 KAPTURE_API=http://localhost:8080/api
 KAPTURE_AUTHENTICATE_URL=https://kapture.apps.kaleidobio.com/api/authenticate
-KAPTURE_USERNAME=dflemming
-KAPTURE_PASSWORD=Kaleido2019
+KAPTURE_USERNAME=your_user_name
+KAPTURE_PASSWORD=your_password
 
 * During deployment, create the lambda function with the --environment attribute
   ```
