@@ -1,4 +1,4 @@
-# Sheppard
+# Shepherd
 
 Application that processes the platemaps as well as tracks sequencing plates and open wells
 
@@ -19,3 +19,17 @@ Application that processes the platemaps as well as tracks sequencing plates and
       --runtime nodejs10.x
       --environment Variables="{KAPTURE_JWT_TOKEN=replace_with_a_valid_token}" 
   ```
+
+
+# To start the lambda function
+  - npm install
+  - npm start
+
+If you are using Webstorm, you can also start and debug using the following set up
+
+![alt text](https://gitlab.kaleidobio.com/research/shepherd/blob/issue/1/images/webstorm_config.png)
+
+# Testing 
+The Lambda function can be tested locally by running ./test.sh in Terminal. 
+
+
