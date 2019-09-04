@@ -16,10 +16,12 @@ exports.handler = (event, context, callback) => {
         console.log('eventType', record.eventName);
         var image = record.dynamodb.NewImage ? record.dynamodb.NewImage : record.dynamodb.OldImage;
 
-        var experiment = image.experiment && image.experiment.S ? image.experiment.S : null;
-        var status = image.experiment && image.experiment.S ? image.status.S : null;
+        var experiment_status = image.experiment_status && image.experiment_status.S ? image.experiment_status.S : null;
+        var experiment = (experiment_status.split("_"))[0];
+        var status = (experiment_status.split("_"))[1];
+        var version = image.version && image.version.N ? image.version.N : null;
         var plateMaps = image.plateMaps && image.plateMaps.S ? JSON.parse(image.plateMaps.S) : null;
-        if (status === 'COMPLETED' ) {
+        if (version > 0 ) {
             var p1 = new Promise(function(resolve, reject) {
                 axios.post(authenticate_url,
                     {
