@@ -21,7 +21,7 @@ exports.handler = (event, context, callback) => {
         var status = (experiment_status.split("_"))[1];
         var version = image.version && image.version.N ? image.version.N : null;
         var plateMaps = image.plateMaps && image.plateMaps.S ? JSON.parse(image.plateMaps.S) : null;
-        if (version > 0 ) {
+        if (version > 0 && status === 'COMPLETED' ) {
             var p1 = new Promise(function(resolve, reject) {
                 axios.post(authenticate_url,
                     {
