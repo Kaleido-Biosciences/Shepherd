@@ -5,7 +5,7 @@ curl -H "Content-Type: application/json" \
   "Records": [
     {
       "eventID": "7de3041dd709b024af6f29e4fa13d34c",
-      "eventName": "MODIFY",
+      "eventName": "INSERT",
       "eventVersion": "1.1",
       "eventSource": "aws:dynamodb",
       "awsRegion": "us-west-1",
