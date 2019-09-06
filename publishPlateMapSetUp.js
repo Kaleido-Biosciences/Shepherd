@@ -4,8 +4,9 @@ var AWS = require("aws-sdk");
 var sns = new AWS.SNS();
 var axios = require("axios");
 
-const url = process.env.KAPTURE_API + '/platemaps/atlas';
-const authenticate_url = process.env.KAPTURE_AUTHENTICATE_URL;
+const http = process.env.KAPTURE_SERVER.startsWith('localhost')? 'http://' : 'https://';
+const url = http + process.env.KAPTURE_SERVER + '/api/platemaps/atlas';
+const authenticate_url = 'https://kapture.apps.kaleidobio.com/api/authenticate'
 const username = process.env.KAPTURE_USERNAME;
 const password = process.env.KAPTURE_PASSWORD;
 
@@ -21,7 +22,7 @@ exports.handler = (event, context, callback) => {
         var status = (experiment_status.split("_"))[1];
         var version = image.version && image.version.N ? image.version.N : null;
         var plateMaps = image.plateMaps && image.plateMaps.S ? JSON.parse(image.plateMaps.S) : null;
-        if (version > 0 && status === 'COMPLETED' ) {
+        if (record.eventName === 'INSERT' && version > 0 && status === 'COMPLETED' ) {
             var p1 = new Promise(function(resolve, reject) {
                 axios.post(authenticate_url,
                     {
