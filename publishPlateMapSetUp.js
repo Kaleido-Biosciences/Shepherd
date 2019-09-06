@@ -5,8 +5,8 @@ var sns = new AWS.SNS();
 var axios = require("axios");
 
 const http = process.env.KAPTURE_SERVER.startsWith('localhost')? 'http://' : 'https://';
-const url = http + process.env.KAPTURE_SERVER + '/api/platemaps/atlas';
-const authenticate_url = 'https://kapture.apps.kaleidobio.com/api/authenticate'
+const url = http + process.env.KAPTURE_SERVER + '/api/external-integrations/atlas';
+const authenticate_url = 'https://kapture.apps.kaleidobio.com/api/authenticate';
 const username = process.env.KAPTURE_USERNAME;
 const password = process.env.KAPTURE_PASSWORD;
 
