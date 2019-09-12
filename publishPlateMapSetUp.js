@@ -80,6 +80,13 @@ function formatWells(experiment, plateMaps) {
                 var theSample = {id: null, label: experiment + ".p" + plateMap.id + "." + cell.id};
                 var theWell = {id: null, platemap: thePlateMap, sample: theSample, row: rowLabel, column: colLabel};
                 var wellWithComponents = {well: theWell, wellComponents: cell.components};
+                cell.components.forEach(function (x){
+                    if (x["timepoints"]){
+                        (x["timepoints"]).forEach(function (t){
+                            t["concentrationUnit"] = "%";
+                        })
+                    }
+                });
                 wellsToSave.push(wellWithComponents);
             });
         });
