@@ -5,8 +5,7 @@ Application that processes the platemaps as well as tracks sequencing plates and
 # Environment variables
 * During development, please add a .env file that contains the following properties:
 
-KAPTURE_API=http://localhost:8080/api
-KAPTURE_AUTHENTICATE_URL=https://kapture.apps.kaleidobio.com/api/authenticate
+KAPTURE_SERVER=localhost:8080
 KAPTURE_USERNAME=your_user_name
 KAPTURE_PASSWORD=your_password
 
@@ -21,7 +20,7 @@ KAPTURE_PASSWORD=your_password
       --timeout 5 \
       --runtime nodejs10.x \
       --environment Variables="{KAPTURE_PASSWORD=replace_with_a_valid_password, \
-      KAPTURE_USERNAME=username, KAPTURE_AUTHENTICATE_URL=url, KAPTURE_API=api }" 
+      KAPTURE_USERNAME=username, KAPTURE_SERVER=localhost:8080 }" 
   ```
 
 

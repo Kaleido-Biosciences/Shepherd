@@ -1,6 +1,6 @@
 {
   "name": "shepherd",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Application that processes the platemaps as well as tracks sequencing plates and open wells",
   "main": "publishPlateMapSetUp.js",
   "dependencies": {
@@ -11,7 +11,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "./test.sh"
+    "test": "./test_dev.sh"
   },
   "repository": {
     "type": "git",

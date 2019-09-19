@@ -1,0 +1,130 @@
+# Note:
+# 1. for develop and master, we will run both build and deploy steps
+# 2. for branches, ONLY build is run
+# 3. branches and develop shared the same environment variables BUT NOT master.
+
+stages:
+  - build
+  - deploy
+
+variables:
+  REGION: 'us-east-1'
+  LAMBDA_NAME_STAGING: 'publishPlateMapSetUpStage'   # Replace it with the name of aws lambda function you want.
+  LAMBDA_NAME_PROD: 'publishPlateMapSetUp'
+  S3_BUCKET: 'shepherd-lambda-function-bucket'   # Replace it with the name of Bucket that will hold the zip code.
+  LAMBDA_RUNTIME: 'nodejs10.x'
+  LAMBDA_ARN: 'arn:aws:iam::001507046168:role/service-role/DynamoDBKickingLambdaRole' # ARN associated with this lambda function.
+
+##### build develop and branches #####
+build:staging:
+  image: node:12.2.0-alpine
+  stage: build
+
+  only:
+    - develop
+    - branches
+
+  script:
+    - apk update
+    - apk add zip
+    - which zip
+    - which npm
+    - echo "$PATH"
+    - cd /builds/research/shepherd
+    - ls
+    - npm install
+    - zip -r function.zip . -x \*.git*   # Archive the code repository.
+    - ls -l
+
+  artifacts:
+    paths:
+      - /builds/research/shepherd/function.zip
+
+  environment:
+    name: staging
+
+###### build master  #####
+build:prod:
+  image: node:12.2.0-alpine
+  stage: build
+
+  only:
+    - master
+
+  script:
+    - apk update
+    - apk add zip
+    - which zip
+    - which npm
+    - echo "$PATH"
+    - cd /builds/research/shepherd
+    - ls
+    - npm install
+    - zip -r function.zip . -x \*.git*   # Archive the code repository.
+
+  artifacts:
+    paths:
+      - /builds/research/shepherd/function.zip
+
+  environment:
+    name: live
+
+###### deploy staging #####
+deploy:staging:
+  image: node:12.2.0-alpine
+  stage: deploy
+
+  only:
+    - develop  # We will run the CD only when something is going to change in develop branch.
+
+  script:
+    - apk update
+    - apk add python python-dev py-pip build-base
+    - pip install --upgrade pip
+    - pip install awscli --upgrade --user
+    - export PATH=~/.local/bin:/root/.local/bin/aws:$PATH # Required for awscli.
+    - echo "$PATH"
+    - cd /builds/research/shepherd
+    - ls
+    - aws s3 cp function.zip s3://$S3_BUCKET/function_prod.zip # Upload archive into s3.
+    - aws lambda update-function-code  --region $REGION --function-name $LAMBDA_NAME_STAGING  --s3-bucket $S3_BUCKET --s3-key function_prod.zip
+
+  dependencies:
+    - build:staging
+
+  artifacts:
+    paths:
+      - /builds/research/shepherd/function.zip
+
+  environment:
+    name: staging
+
+###### deploy master #####
+deploy:prod:
+  image: node:12.2.0-alpine
+  stage: deploy
+
+  only:
+    - master
+
+  script:
+    - apk update
+    - apk add python python-dev py-pip build-base
+    - pip install --upgrade pip
+    - pip install awscli --upgrade --user
+    - export PATH=~/.local/bin:/root/.local/bin/aws:$PATH # Required for awscli.
+    - echo "$PATH"
+    - cd /builds/research/shepherd
+    - ls
+    - aws s3 cp function.zip s3://$S3_BUCKET/function_prod.zip # Upload archive into s3.
+    - aws lambda update-function-code  --region $REGION --function-name $LAMBDA_NAME_PROD  --s3-bucket $S3_BUCKET --s3-key function_prod.zip
+
+  dependencies:
+    - build:prod
+
+  artifacts:
+    paths:
+      - /builds/research/shepherd/function.zip
+
+  environment:
+    name: live

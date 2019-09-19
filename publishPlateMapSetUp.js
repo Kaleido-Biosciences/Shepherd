@@ -4,8 +4,10 @@ var AWS = require("aws-sdk");
 var sns = new AWS.SNS();
 var axios = require("axios");
 
-const url = process.env.KAPTURE_API + '/platemaps/atlas';
-const authenticate_url = process.env.KAPTURE_AUTHENTICATE_URL;
+const http = process.env.KAPTURE_SERVER.startsWith('localhost')? 'http://' : 'https://';
+const url = http + process.env.KAPTURE_SERVER + '/api/external-integrations/atlas';
+//const url = "https://kapture-staging.apps.kaleidobio.com/api/external-integrations/atlas"
+const authenticate_url = 'https://kapture.apps.kaleidobio.com/api/authenticate';
 const username = process.env.KAPTURE_USERNAME;
 const password = process.env.KAPTURE_PASSWORD;
 
@@ -16,10 +18,12 @@ exports.handler = (event, context, callback) => {
         console.log('eventType', record.eventName);
         var image = record.dynamodb.NewImage ? record.dynamodb.NewImage : record.dynamodb.OldImage;
 
-        var experiment = image.experiment && image.experiment.S ? image.experiment.S : null;
-        var status = image.experiment && image.experiment.S ? image.status.S : null;
+        var experiment_status = image.experiment_status && image.experiment_status.S ? image.experiment_status.S : null;
+        var experiment = (experiment_status.split("_"))[0];
+        var status = (experiment_status.split("_"))[1];
+        var version = image.version && image.version.N ? image.version.N : null;
         var plateMaps = image.plateMaps && image.plateMaps.S ? JSON.parse(image.plateMaps.S) : null;
-        if (status === 'COMPLETE' ) {
+        if (record.eventName === 'INSERT' && version > 0 && status === 'COMPLETED' ) {
             var p1 = new Promise(function(resolve, reject) {
                 axios.post(authenticate_url,
                     {
@@ -48,7 +52,7 @@ function saveToKapture(experiment, plateMaps, status, token) {
     var wellsToSave = formatWells(experiment, plateMaps);
     axios.post(url,
         {
-            experimentName: experiment,
+            experiment: experiment,
             wellWithComponents: wellsToSave
         }, {
             headers: {"Authorization": `Bearer ${token}`}
@@ -77,6 +81,13 @@ function formatWells(experiment, plateMaps) {
                 var theSample = {id: null, label: experiment + ".p" + plateMap.id + "." + cell.id};
                 var theWell = {id: null, platemap: thePlateMap, sample: theSample, row: rowLabel, column: colLabel};
                 var wellWithComponents = {well: theWell, wellComponents: cell.components};
+                cell.components.forEach(function (x){
+                    if (x["timepoints"]){
+                        (x["timepoints"]).forEach(function (t){
+                            t["concentrationUnit"] = "%";
+                        })
+                    }
+                });
                 wellsToSave.push(wellWithComponents);
             });
         });
