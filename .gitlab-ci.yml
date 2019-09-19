@@ -86,8 +86,8 @@ deploy:staging:
     - echo "$PATH"
     - cd /builds/research/shepherd
     - ls
-    - aws s3 cp function.zip s3://$S3_BUCKET/function_prod.zip # Upload archive into s3.
-    - aws lambda update-function-code  --region $REGION --function-name $LAMBDA_NAME_STAGING  --s3-bucket $S3_BUCKET --s3-key function_prod.zip
+    - aws s3 cp function.zip s3://$S3_BUCKET/function_staging.zip # Upload archive into s3.
+    - aws lambda update-function-code  --region $REGION --function-name $LAMBDA_NAME_STAGING  --s3-bucket $S3_BUCKET --s3-key function_staging.zip
 
   dependencies:
     - build:staging
