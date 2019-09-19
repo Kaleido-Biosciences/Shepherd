@@ -6,6 +6,7 @@ var axios = require("axios");
 
 const http = process.env.KAPTURE_SERVER.startsWith('localhost')? 'http://' : 'https://';
 const url = http + process.env.KAPTURE_SERVER + '/api/external-integrations/atlas';
+//const url = "https://kapture-staging.apps.kaleidobio.com/api/external-integrations/atlas"
 const authenticate_url = 'https://kapture.apps.kaleidobio.com/api/authenticate';
 const username = process.env.KAPTURE_USERNAME;
 const password = process.env.KAPTURE_PASSWORD;
@@ -51,7 +52,7 @@ function saveToKapture(experiment, plateMaps, status, token) {
     var wellsToSave = formatWells(experiment, plateMaps);
     axios.post(url,
         {
-            experimentName: experiment,
+            experiment: experiment,
             wellWithComponents: wellsToSave
         }, {
             headers: {"Authorization": `Bearer ${token}`}
