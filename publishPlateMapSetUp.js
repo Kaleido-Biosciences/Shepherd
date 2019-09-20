@@ -33,15 +33,20 @@ exports.handler = (event, context, callback) => {
                     }
                 )
                     .then(function (response) {
+                        console.log("Authentication PASSED.....got token");
                         resolve(response.data.id_token);
                     })
                     .catch(function (error) {
-                        console.log("Authentication Failed");
-                        reject(error)
+                        console.log("Authentication FAILED.....for "+username);
+                        console.log(authenticate_url);
+                        console.log(error.valueOf());
+                        resolve(null)
                     });
             });
             p1.then(function (token){
-                saveToKapture(experiment, plateMaps, status, token);
+                if (token) {
+                    saveToKapture(experiment, plateMaps, status, token);
+                }
             });
         }
     });
@@ -60,11 +65,11 @@ function saveToKapture(experiment, plateMaps, status, token) {
     )
         .then(function (response) {
             console.log(response);
-            sendSNS(experiment, status, plateMaps.length, "Shepherd SUCCEED in publishing to Kapture");
+            sendSNS(experiment, status, plateMaps.length, "Shepherd SUCCEED in publishing to " + process.env.KAPTURE_SERVER);
         })
         .catch(function (error) {
             console.log(error);
-            sendSNS(experiment, status, plateMaps.length, "Shepherd FAILED to publish to Kapture");
+            sendSNS(experiment, status, plateMaps.length, "Shepherd FAILED to publish to "+ process.env.KAPTURE_SERVER);
         });
 }
 
