@@ -65,11 +65,11 @@ function saveToKapture(experiment, plateMaps, status, token) {
     )
         .then(function (response) {
             console.log(response);
-            sendSNS(experiment, status, plateMaps.length, "Shepherd SUCCEED in publishing to Kapture");
+            sendSNS(experiment, status, plateMaps.length, "Shepherd SUCCEED in publishing to " + process.env.KAPTURE_SERVER);
         })
         .catch(function (error) {
             console.log(error);
-            sendSNS(experiment, status, plateMaps.length, "Shepherd FAILED to publish to Kapture "+url);
+            sendSNS(experiment, status, plateMaps.length, "Shepherd FAILED to publish to "+ process.env.KAPTURE_SERVER);
         });
 }
 
