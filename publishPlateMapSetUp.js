@@ -73,6 +73,22 @@ function saveToKapture(experiment, plateMaps, status, token) {
         });
 }
 
+function extractAttributes(components){
+    let attributes = [];
+    const attributeComponent = components.filter(c => c.type === 'attribute');
+    attributeComponent.forEach(c => {
+        if (c['attributeValues']) {
+            attributes.push({
+                key: c['attributeValues']['key'],
+                value: c['attributeValues']['value'],
+                value_type: c['attributeValues']['value_type'],
+                value_unit: c['attributeValues']['value_unit'],
+            })
+        }
+    })
+    return attributes;
+}
+
 function formatWells(experiment, plateMaps) {
     var wellsToSave = [];
     plateMaps.forEach(function (plateMap) {
@@ -85,7 +101,11 @@ function formatWells(experiment, plateMaps) {
                 var colLabel = cell.id.replace(re1, '');
                 var theSample = {id: null, label: experiment + ".p" + plateMap.id + "." + cell.id};
                 var theWell = {id: null, platemap: thePlateMap, sample: theSample, row: rowLabel, column: colLabel};
-                var wellWithComponents = {well: theWell, wellComponents: cell.components};
+                var wellWithComponents = {
+                    well: theWell,
+                    wellComponents: cell.components.filter(c => c.type !=='attribute'),
+                    attributes: extractAttributes(cell.components)
+                };
                 cell.components.forEach(function (x){
                     if (x["timepoints"]){
                         (x["timepoints"]).forEach(function (t){
