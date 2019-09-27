@@ -33,15 +33,20 @@ exports.handler = (event, context, callback) => {
                     }
                 )
                     .then(function (response) {
+                        console.log("Authentication PASSED.....got token");
                         resolve(response.data.id_token);
                     })
                     .catch(function (error) {
-                        console.log("Authentication Failed");
-                        reject(error)
+                        console.log("Authentication FAILED.....for "+username);
+                        console.log(authenticate_url);
+                        console.log(error.valueOf());
+                        resolve(null)
                     });
             });
             p1.then(function (token){
-                saveToKapture(experiment, plateMaps, status, token);
+                if (token) {
+                    saveToKapture(experiment, plateMaps, status, token);
+                }
             });
         }
     });
@@ -60,12 +65,28 @@ function saveToKapture(experiment, plateMaps, status, token) {
     )
         .then(function (response) {
             console.log(response);
-            sendSNS(experiment, status, plateMaps.length, "Shepherd SUCCEED in publishing to Kapture");
+            sendSNS(experiment, status, plateMaps.length, "Shepherd SUCCEED in publishing to " + process.env.KAPTURE_SERVER);
         })
         .catch(function (error) {
             console.log(error);
-            sendSNS(experiment, status, plateMaps.length, "Shepherd FAILED to publish to Kapture");
+            sendSNS(experiment, status, plateMaps.length, "Shepherd FAILED to publish to "+ process.env.KAPTURE_SERVER);
         });
+}
+
+function extractAttributes(components){
+    let attributes = [];
+    const attributeComponent = components.filter(c => c.type === 'attribute');
+    attributeComponent.forEach(c => {
+        if (c['attributeValues']) {
+            attributes.push({
+                key: c['attributeValues']['key'],
+                value: c['attributeValues']['value'],
+                value_type: c['attributeValues']['value_type'],
+                value_unit: c['attributeValues']['value_unit'],
+            })
+        }
+    })
+    return attributes;
 }
 
 function formatWells(experiment, plateMaps) {
@@ -80,7 +101,11 @@ function formatWells(experiment, plateMaps) {
                 var colLabel = cell.id.replace(re1, '');
                 var theSample = {id: null, label: experiment + ".p" + plateMap.id + "." + cell.id};
                 var theWell = {id: null, platemap: thePlateMap, sample: theSample, row: rowLabel, column: colLabel};
-                var wellWithComponents = {well: theWell, wellComponents: cell.components};
+                var wellWithComponents = {
+                    well: theWell,
+                    wellComponents: cell.components.filter(c => c.type !=='attribute'),
+                    attributes: extractAttributes(cell.components)
+                };
                 cell.components.forEach(function (x){
                     if (x["timepoints"]){
                         (x["timepoints"]).forEach(function (t){

@@ -9,7 +9,7 @@ stages:
 
 variables:
   REGION: 'us-east-1'
-  LAMBDA_NAME_STAGING: 'publishPlateMapSetUpStage'   # Replace it with the name of aws lambda function you want.
+  LAMBDA_NAME_STAGING: 'publishPlateMapSetUpStaging'   # Replace it with the name of aws lambda function you want.
   LAMBDA_NAME_PROD: 'publishPlateMapSetUp'
   S3_BUCKET: 'shepherd-lambda-function-bucket'   # Replace it with the name of Bucket that will hold the zip code.
   LAMBDA_RUNTIME: 'nodejs10.x'
@@ -86,8 +86,8 @@ deploy:staging:
     - echo "$PATH"
     - cd /builds/research/shepherd
     - ls
-    - aws s3 cp function.zip s3://$S3_BUCKET/function_prod.zip # Upload archive into s3.
-    - aws lambda update-function-code  --region $REGION --function-name $LAMBDA_NAME_STAGING  --s3-bucket $S3_BUCKET --s3-key function_prod.zip
+    - aws s3 cp function.zip s3://$S3_BUCKET/function_staging.zip # Upload archive into s3.
+    - aws lambda update-function-code  --region $REGION --function-name $LAMBDA_NAME_STAGING  --s3-bucket $S3_BUCKET --s3-key function_staging.zip
 
   dependencies:
     - build:staging
