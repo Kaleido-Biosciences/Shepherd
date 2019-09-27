@@ -1,4 +1,4 @@
-const g766 = {
+{
   "experiment": "G766",
   "wellWithComponents": [
     {
@@ -61,6 +61,14 @@ const g766 = {
               "concentrationUnit": "%"
             }
           ]
+        }
+      ],
+      "attributes": [
+        {
+          "key": "OD600",
+          "value": "24",
+          "value_type": "Integer",
+          "value_unit": "hr"
         }
       ]
     },
@@ -48387,5 +48395,3 @@ const g766 = {
     }
   ]
 }
-
-module.exports = { g766 };
