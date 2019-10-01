@@ -18,7 +18,7 @@ exports.handler = (event, context, callback) => {
         console.log('Stream record: ', JSON.stringify(record, null, 2));
         console.log('eventType', record.eventName);
         let compressedImage = record.dynamodb.NewImage ? record.dynamodb.NewImage : record.dynamodb.OldImage;
-        let image = JSON.parse(lzutf8.decompress(compressedImage, {inputEncoding:"Base64"} ))
+        let image = JSON.parse(lzutf8.decompress(compressedImage, {inputEncoding:"Base64"} ));
 
         let experiment_status = image.experiment_status && image.experiment_status.S ? image.experiment_status.S : null;
         let experiment = (experiment_status.split("_"))[0];
@@ -26,7 +26,7 @@ exports.handler = (event, context, callback) => {
         let version = image.version && image.version.N ? image.version.N : null;
         let plateMaps = image.plateMaps && image.plateMaps.S ? JSON.parse(image.plateMaps.S) : null;
         if (record.eventName === 'INSERT' && version > 0 && status === 'COMPLETED' ) {
-            var p1 = new Promise(function(resolve, reject) {
+            let p1 = new Promise(function(resolve) {
                 axios.post(authenticate_url,
                     {
                         "password": password,
@@ -56,7 +56,7 @@ exports.handler = (event, context, callback) => {
 };
 
 function saveToKapture(experiment, plateMaps, status, token) {
-    var wellsToSave = formatWells(experiment, plateMaps);
+    let wellsToSave = formatWells(experiment, plateMaps);
     axios.post(url,
         {
             experiment: experiment,
