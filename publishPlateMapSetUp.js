@@ -1,8 +1,9 @@
 'use strict';
 require('dotenv').config();
-var AWS = require("aws-sdk");
-var sns = new AWS.SNS();
-var axios = require("axios");
+let AWS = require("aws-sdk");
+let sns = new AWS.SNS();
+let axios = require("axios");
+let lzutf8 = require("lzutf8");
 
 const http = process.env.KAPTURE_SERVER.startsWith('localhost')? 'http://' : 'https://';
 const url = http + process.env.KAPTURE_SERVER + '/api/external-integrations/atlas';
@@ -16,15 +17,14 @@ exports.handler = (event, context, callback) => {
     event.Records.forEach((record) => {
         console.log('Stream record: ', JSON.stringify(record, null, 2));
         console.log('eventType', record.eventName);
-        var image = record.dynamodb.NewImage ? record.dynamodb.NewImage : record.dynamodb.OldImage;
-
-        var experiment_status = image.experiment_status && image.experiment_status.S ? image.experiment_status.S : null;
-        var experiment = (experiment_status.split("_"))[0];
-        var status = (experiment_status.split("_"))[1];
-        var version = image.version && image.version.N ? image.version.N : null;
-        var plateMaps = image.plateMaps && image.plateMaps.S ? JSON.parse(image.plateMaps.S) : null;
+        let image = record.dynamodb.NewImage ? record.dynamodb.NewImage : record.dynamodb.OldImage;
+        let experiment_status = image.experiment_status && image.experiment_status.S ? image.experiment_status.S : null;
+        let experiment = (experiment_status.split("_"))[0];
+        let status = (experiment_status.split("_"))[1];
+        let version = image.version && image.version.N ? image.version.N : null;
+        let plateMaps = image.plateMaps && image.plateMaps.S ? JSON.parse(lzutf8.decompress(image.plateMaps.S, {inputEncoding:"Base64"} )) : null;
         if (record.eventName === 'INSERT' && version > 0 && status === 'COMPLETED' ) {
-            var p1 = new Promise(function(resolve, reject) {
+            let p1 = new Promise(function(resolve) {
                 axios.post(authenticate_url,
                     {
                         "password": password,
@@ -54,7 +54,7 @@ exports.handler = (event, context, callback) => {
 };
 
 function saveToKapture(experiment, plateMaps, status, token) {
-    var wellsToSave = formatWells(experiment, plateMaps);
+    let wellsToSave = formatWells(experiment, plateMaps);
     axios.post(url,
         {
             experiment: experiment,
@@ -85,23 +85,23 @@ function extractAttributes(components){
                 value_unit: c['attributeValues']['value_unit'],
             })
         }
-    })
+    });
     return attributes;
 }
 
 function formatWells(experiment, plateMaps) {
-    var wellsToSave = [];
+    let wellsToSave = [];
     plateMaps.forEach(function (plateMap) {
         var thePlateMap = {id: null, plateNumber: plateMap.id, platePurpose: null, plateType: null};
         plateMap.data.forEach(function (row) {
-            var re0 = /[0-9]/g;
-            var re1 = /[a-zA-Z]/g;
+            let re0 = /[0-9]/g;
+            let re1 = /[a-zA-Z]/g;
             row.forEach(function (cell) {
-                var rowLabel = cell.id.replace(re0, '');
-                var colLabel = cell.id.replace(re1, '');
-                var theSample = {id: null, label: experiment + ".p" + plateMap.id + "." + cell.id};
-                var theWell = {id: null, platemap: thePlateMap, sample: theSample, row: rowLabel, column: colLabel};
-                var wellWithComponents = {
+                let rowLabel = cell.id.replace(re0, '');
+                let colLabel = cell.id.replace(re1, '');
+                let theSample = {id: null, label: experiment + ".p" + plateMap.id + "." + cell.id};
+                let theWell = {id: null, platemap: thePlateMap, sample: theSample, row: rowLabel, column: colLabel};
+                let wellWithComponents = {
                     well: theWell,
                     wellComponents: cell.components.filter(c => c.type !=='attribute'),
                     attributes: extractAttributes(cell.components)
