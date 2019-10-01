@@ -17,14 +17,12 @@ exports.handler = (event, context, callback) => {
     event.Records.forEach((record) => {
         console.log('Stream record: ', JSON.stringify(record, null, 2));
         console.log('eventType', record.eventName);
-        let compressedImage = record.dynamodb.NewImage ? record.dynamodb.NewImage : record.dynamodb.OldImage;
-        let image = JSON.parse(lzutf8.decompress(compressedImage, {inputEncoding:"Base64"} ));
-
+        let image = record.dynamodb.NewImage ? record.dynamodb.NewImage : record.dynamodb.OldImage;
         let experiment_status = image.experiment_status && image.experiment_status.S ? image.experiment_status.S : null;
         let experiment = (experiment_status.split("_"))[0];
         let status = (experiment_status.split("_"))[1];
         let version = image.version && image.version.N ? image.version.N : null;
-        let plateMaps = image.plateMaps && image.plateMaps.S ? JSON.parse(image.plateMaps.S) : null;
+        let plateMaps = image.plateMaps && image.plateMaps.S ? JSON.parse(lzutf8.decompress(image.plateMaps.S, {inputEncoding:"Base64"} )) : null;
         if (record.eventName === 'INSERT' && version > 0 && status === 'COMPLETED' ) {
             let p1 = new Promise(function(resolve) {
                 axios.post(authenticate_url,
