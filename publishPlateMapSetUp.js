@@ -109,7 +109,7 @@ function formatWells(experiment, plateMaps) {
                 let wellWithComponents = {
                     well: theWell,
                     wellComponents: cell.components.filter(c => c.type !=='attribute'),
-                    //attributes: extractAttributes(cell.components)
+                    attributes: extractAttributes(cell.components)
                 };
                 cell.components.forEach(function (x){
                     if (x["timepoints"]){
