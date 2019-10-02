@@ -9,7 +9,7 @@ stages:
 
 variables:
   REGION: 'us-east-1'
-  LAMBDA_NAME_STAGING: 'publishPlateMapSetUpStaging'   # Replace it with the name of aws lambda function you want.
+  LAMBDA_NAME_STAGING: 'publishPlateMapSetUpStaging_v1'   # Replace it with the name of aws lambda function you want.
   LAMBDA_NAME_PROD: 'publishPlateMapSetUp'
   S3_BUCKET: 'shepherd-lambda-function-bucket'   # Replace it with the name of Bucket that will hold the zip code.
   LAMBDA_RUNTIME: 'nodejs10.x'

@@ -15,39 +15,44 @@ const password = process.env.KAPTURE_PASSWORD;
 exports.handler = (event, context, callback) => {
 
     event.Records.forEach((record) => {
-        console.log('Stream record: ', JSON.stringify(record, null, 2));
-        console.log('eventType', record.eventName);
-        let image = record.dynamodb.NewImage ? record.dynamodb.NewImage : record.dynamodb.OldImage;
-        let experiment_status = image.experiment_status && image.experiment_status.S ? image.experiment_status.S : null;
-        let experiment = (experiment_status.split("_"))[0];
-        let status = (experiment_status.split("_"))[1];
-        let version = image.version && image.version.N ? image.version.N : null;
-        let plateMaps = image.plateMaps && image.plateMaps.S ? JSON.parse(lzutf8.decompress(image.plateMaps.S, {inputEncoding:"Base64"} )) : null;
-        if (record.eventName === 'INSERT' && version > 0 && status === 'COMPLETED' ) {
-            let p1 = new Promise(function(resolve) {
-                axios.post(authenticate_url,
-                    {
-                        "password": password,
-                        "rememberMe": true,
-                        "username": username
+        try {
+            console.log('Stream record: ', JSON.stringify(record, null, 2));
+            console.log('eventType', record.eventName);
+            let image = record.dynamodb.NewImage ? record.dynamodb.NewImage : record.dynamodb.OldImage;
+            let experiment_status = image.experiment_status && image.experiment_status.S ? image.experiment_status.S : null;
+            let experiment = (experiment_status.split("_"))[0];
+            let status = (experiment_status.split("_"))[1];
+            let version = image.version && image.version.N ? image.version.N : null;
+            let plateMaps = image.plateMaps && image.plateMaps.S ? JSON.parse(lzutf8.decompress(image.plateMaps.S, {inputEncoding: "Base64"})) : null;
+            if (record.eventName === 'INSERT' && version > 0 && status === 'COMPLETED') {
+                let p1 = new Promise(function (resolve) {
+                    axios.post(authenticate_url,
+                      {
+                          "password": password,
+                          "rememberMe": true,
+                          "username": username
+                      }
+                    )
+                      .then(function (response) {
+                          console.log("Authentication PASSED.....got token");
+                          resolve(response.data.id_token);
+                      })
+                      .catch(function (error) {
+                          console.log("Authentication FAILED.....for " + username);
+                          console.log(authenticate_url);
+                          console.log(error.valueOf());
+                          resolve(null)
+                      });
+                });
+                p1.then(function (token) {
+                    if (token) {
+                        saveToKapture(experiment, plateMaps, status, token);
                     }
-                )
-                    .then(function (response) {
-                        console.log("Authentication PASSED.....got token");
-                        resolve(response.data.id_token);
-                    })
-                    .catch(function (error) {
-                        console.log("Authentication FAILED.....for "+username);
-                        console.log(authenticate_url);
-                        console.log(error.valueOf());
-                        resolve(null)
-                    });
-            });
-            p1.then(function (token){
-                if (token) {
-                    saveToKapture(experiment, plateMaps, status, token);
-                }
-            });
+                });
+            }
+        }
+        catch (error){
+            context.fail(error);
         }
     });
     callback(null, `processed ${event.Records.length} records.`);
@@ -104,7 +109,7 @@ function formatWells(experiment, plateMaps) {
                 let wellWithComponents = {
                     well: theWell,
                     wellComponents: cell.components.filter(c => c.type !=='attribute'),
-                    attributes: extractAttributes(cell.components)
+                    //attributes: extractAttributes(cell.components)
                 };
                 cell.components.forEach(function (x){
                     if (x["timepoints"]){
