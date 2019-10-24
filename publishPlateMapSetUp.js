@@ -73,7 +73,7 @@ function saveToKapture(experiment, plateMaps, status, token) {
                     function (data, headers) {
                         headers['Content-Encoding'] = 'gzip';
                         //TODO: This is apparently not returning a string
-                        return pako.gzip(data,{ to: 'string' });
+                        return pako.gzip(JSON.stringify(data),{ to: 'string' });
                     }
                 )
         })
