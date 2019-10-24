@@ -72,7 +72,7 @@ function saveToKapture(experiment, plateMaps, status, token) {
             transformRequest: axios.defaults.transformRequest.concat(
                     function (data, headers) {
                         headers['Content-Encoding'] = 'gzip';
-                        return pako.gzip(data);
+                        return pako.gzip(JSON.stringify(data));
                     }
                 )
         })
