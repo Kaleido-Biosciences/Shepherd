@@ -71,6 +71,10 @@ function saveToKapture(experiment, plateMaps, status, token) {
             headers: {"Authorization": `Bearer ${token}`},
             transformRequest: axios.defaults.transformRequest.concat(
                     function (data, headers) {
+                        console.log(data, headers);
+                        console.log(JSON.stringify(data));
+                        console.log(pako.gzip(data,{ to: 'string' }));
+                        console.log(pako.gzip(JSON.stringify(data),{ to: 'string' }));
                         headers['Content-Encoding'] = 'gzip';
                         //TODO: This is apparently not returning a string
                         return pako.gzip(JSON.stringify(data),{ to: 'string' });
