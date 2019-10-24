@@ -64,15 +64,18 @@ function saveToKapture(experiment, plateMaps, status, token) {
     // TODO: Most requests will be over 1024 bytes, however if we start to find this is not the case we should/could
     //       only compress the messages whose data is only over 1024 bytes
     axios.post(url,
-        pako.gzip(`{
-            "experiment": ${experiment},
-            "wellWithComponents": ${wellsToSave}
-        }`), {
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Encoding": "gzip"}
-        }
-    )
+        {
+            experiment: experiment,
+            wellWithComponents: wellsToSave
+        }, {
+            headers: {"Authorization": `Bearer ${token}`},
+            transformRequest: axios.defaults.transformRequest.concat(
+                    function (data, headers) {
+                        headers['Content-Encoding'] = 'gzip';
+                        return pako.gzip(data);
+                    }
+                )
+        })
         .then(function (response) {
             console.log(response);
             sendSNS(experiment, status, plateMaps.length, "Shepherd SUCCEED in publishing to " + process.env.KAPTURE_SERVER);
