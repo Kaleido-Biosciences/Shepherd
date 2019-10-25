@@ -11,6 +11,8 @@ const url = http + process.env.KAPTURE_SERVER + '/api/external-integrations/atla
 const authenticate_url = 'https://kapture.apps.kaleidobio.com/api/authenticate';
 const username = process.env.KAPTURE_USERNAME;
 const password = process.env.KAPTURE_PASSWORD;
+const MAX_POST_SIZE = 1500000;
+const POST_BATCH_LENGTH = 1000;
 
 exports.handler = (event, context, callback) => {
 
@@ -60,13 +62,27 @@ exports.handler = (event, context, callback) => {
 
 function saveToKapture(experiment, plateMaps, status, token) {
     let wellsToSave = formatWells(experiment, plateMaps);
+
+    //We need to break up the experiment into smaller chunks to send.
+    if (JSON.stringify(wellsToSave).length > 1500000) {
+        while(wellsToSave.length > 0) {
+            let splicedWells = wellsToSave.splice(0,POST_BATCH_LENGTH);
+            saveWells(experiment, splicedWells, status, token);
+        }
+    } else {
+        saveWells(experiment, wellsToSave, status, token);
+    }
+
+}
+
+function saveWells(experiment, wellsToSave, status, token) {
     axios.post(url,
         {
             experiment: experiment,
             wellWithComponents: wellsToSave
         }, {
             headers: { "Authorization": `Bearer ${token}`}
-    })
+        })
         .then(function (response) {
             console.log(response);
             // sendSNS(experiment, status, plateMaps.length, "Shepherd SUCCEED in publishing to " + process.env.KAPTURE_SERVER);
