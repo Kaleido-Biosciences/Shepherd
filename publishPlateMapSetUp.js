@@ -12,7 +12,7 @@ const authenticate_url = 'https://kapture.apps.kaleidobio.com/api/authenticate';
 const username = process.env.KAPTURE_USERNAME;
 const password = process.env.KAPTURE_PASSWORD;
 const MAX_POST_SIZE = 1500000;
-const POST_BATCH_LENGTH = 1000;
+const POST_BATCH_LENGTH = 768;
 
 exports.handler = (event, context, callback) => {
 
