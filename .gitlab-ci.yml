@@ -22,7 +22,6 @@ build:staging:
 
   only:
     - develop
-    - branches
 
   script:
     - apk update
