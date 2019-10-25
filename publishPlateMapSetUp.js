@@ -65,11 +65,13 @@ function saveToKapture(experiment, plateMaps, status, token) {
 
     //We need to break up the experiment into smaller chunks to send.
     if (JSON.stringify(wellsToSave).length > 1500000) {
+        console.log("Message to large, breaking it up");
         while(wellsToSave.length > 0) {
             let splicedWells = wellsToSave.splice(0,POST_BATCH_LENGTH);
             saveWells(experiment, splicedWells, status, token);
         }
     } else {
+        console.log("shipping the whole experiment");
         saveWells(experiment, wellsToSave, status, token);
     }
 
