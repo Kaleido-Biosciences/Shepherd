@@ -4,7 +4,6 @@ let AWS = require("aws-sdk");
 let sns = new AWS.SNS();
 let axios = require("axios");
 let lzutf8 = require("lzutf8");
-let pako = require("pako");
 
 const http = process.env.KAPTURE_SERVER.startsWith('localhost')? 'http://' : 'https://';
 const url = http + process.env.KAPTURE_SERVER + '/api/external-integrations/atlas';
@@ -61,25 +60,16 @@ exports.handler = (event, context, callback) => {
 
 function saveToKapture(experiment, plateMaps, status, token) {
     let wellsToSave = formatWells(experiment, plateMaps);
-    // TODO: Most requests will be over 1024 bytes, however if we start to find this is not the case we should/could
-    //       only compress the messages whose data is only over 1024 bytes
     axios.post(url,
         {
             experiment: experiment,
             wellWithComponents: wellsToSave
         }, {
-            headers: {"Authorization": `Bearer ${token}`},
-            transformRequest: axios.defaults.transformRequest.concat(
-                    function (data, headers) {
-                        headers['Content-Encoding'] = 'gzip';
-                        //TODO: This is apparently not returning a string
-                        return pako.gzip(JSON.stringify(data),{ to: 'string' });
-                    }
-                )
-        })
+            headers: { "Authorization": `Bearer ${token}`}
+    })
         .then(function (response) {
             console.log(response);
-            sendSNS(experiment, status, plateMaps.length, "Shepherd SUCCEED in publishing to " + process.env.KAPTURE_SERVER);
+            // sendSNS(experiment, status, plateMaps.length, "Shepherd SUCCEED in publishing to " + process.env.KAPTURE_SERVER);
         })
         .catch(function (error) {
             console.log(error);

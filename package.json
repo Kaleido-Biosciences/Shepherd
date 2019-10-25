@@ -8,8 +8,7 @@
     "axios": "^0.19.0",
     "bespoken-tools": "^2.3.38",
     "dotenv": "^8.1.0",
-    "lzutf8": "^0.5.5",
-    "pako": "^1.0.10"
+    "lzutf8": "^0.5.5"
   },
   "devDependencies": {},
   "scripts": {
