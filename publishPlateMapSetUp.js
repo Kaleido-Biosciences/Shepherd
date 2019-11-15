@@ -120,7 +120,8 @@ function formatWells(experiment, plateMaps) {
             row.forEach(function (cell) {
                 let rowLabel = cell.id.replace(re0, '');
                 let colLabel = cell.id.replace(re1, '');
-                let theSample = {id: null, label: experiment + ".p" + plateMap.id + "." + cell.id};
+                let theSample = {id: null, label: plateMap.barcode == null ?
+                        (experiment + ".p" + plateMap.id + "." + cell.id) : (plateMap.barcode + cell.id)};
                 let theWell = {id: null, platemap: thePlateMap, sample: theSample, row: rowLabel, column: colLabel};
                 let wellWithComponents = {
                     well: theWell,
