@@ -11,7 +11,7 @@ const authenticate_url = 'https://kapture.apps.kaleidobio.com/api/authenticate';
 const username = process.env.KAPTURE_USERNAME;
 const password = process.env.KAPTURE_PASSWORD;
 const MAX_POST_SIZE = 1500000;
-const POST_BATCH_LENGTH = 768;
+const POST_BATCH_LENGTH = 384;
 
 exports.handler = (event, context, callback) => {
 
@@ -63,7 +63,7 @@ function saveToKapture(experiment, plateMaps, status, token) {
     let wellsToSave = formatWells(experiment, plateMaps);
 
     //We need to break up the experiment into smaller chunks to send.
-    if (JSON.stringify(wellsToSave).length > 1500000) {
+    if (JSON.stringify(wellsToSave).length > MAX_POST_SIZE) {
         console.log("Message to large, breaking it up");
         while(wellsToSave.length > 0) {
             let splicedWells = wellsToSave.splice(0,POST_BATCH_LENGTH);
