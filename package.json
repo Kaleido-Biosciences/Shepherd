@@ -5,7 +5,7 @@
   "main": "publishPlateMapSetUp.js",
   "dependencies": {
     "aws-sdk": "^2.518.0",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "bespoken-tools": "^2.3.38",
     "dotenv": "^8.1.0",
     "lzutf8": "^0.5.5"
